@@ -46,8 +46,7 @@
 
 
 <h1>llegando al formulario con helper</h1>
-
-<h2><b><?php  echo $ayuda; ?></b></h2>
+ 
 
 <div class="container-fluid">
 	<div class="row">
@@ -57,7 +56,7 @@
 				<br>
 				<br>
 				 <!-- se muestra los errores generados  -->
-				<?php  echo validation_errors('<div class="  alert alert-warning">', '</div>'); ?>
+				<?php  echo validation_errors('<div class="  alert alert-danger text-center"><h1>', '</h1></div>'); ?>
 				 
 				<br>
 				<br>

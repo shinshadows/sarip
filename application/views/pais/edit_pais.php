@@ -1,19 +1,21 @@
 <?php 
-
  
- 
-foreach($pais as $value){
+  
+if (isset ($pais)){
+	foreach($pais as $value){
  
   
  
  
 	// se crean arrays asociativos para pasarle al orm los atributos que tiene cada elemento del formulario
+		
+		
 		$input_id = array(
 			'name'=> 'id',
 			'class'=> 'badge badge-secondary form-control',
 			'id'=> 'id_pais',
 			'type'=> 'text',
-			'value'=> $value->id,
+			'value'=>  $value->id
 		);
 		$input_pais = array(
 			'name'=> 'pais',
@@ -57,6 +59,7 @@ foreach($pais as $value){
 		);
 
 	}
+ 
 
 ?>
 
@@ -73,14 +76,15 @@ foreach($pais as $value){
 
 				<br>
 				<br>
-				 <!-- se muestra los errores generados  -->
+				
+			 
 				<?php // echo validation_errors('<div class="  alert alert-warning">', '</div>'); ?>
 				 
 				<br>
 				<br>
 				
 				<!-- se abre el formulario usanndo el metodo del orm -->
-				<?php echo form_open("pais/actualizarPais")?>
+				<?php echo form_open("pais/actualizarPais/".$value->id )?>
 
 					<div class="input-group mb-3 input-group-sm">
 						<div class="input-group-prepend">
@@ -89,10 +93,10 @@ foreach($pais as $value){
 							</span>
 						</div>
 						<?php echo form_input($input_id)?><br>
-						<div class="badge badge-primary form-control"> <?php echo $value->id ?><br></div>
+						<div class="badge badge-primary form-control"> <?php echo  $value->id ?><br></div>
 						<!-- se muestra el input de acuerdo  con los atributos pasados por array -->
 						
-												
+					 
 					</div>
 					<div class="input-group mb-3 input-group-sm">
 						<div class="input-group-prepend">
@@ -140,6 +144,25 @@ foreach($pais as $value){
 		</div>
 	</div>
 </div>
+
+<?php 
+	}else{
+
+		if ($mensaje==true){?>
+			<div class="alert alert-<?= $class; ?> text-center col-6 float mx-auto">
+				
+				<?= $mensaje; 
+				
+				header('Refresh:3; url= '. base_url().'pais'); //se redirecciona luego de 3 segundos			 
+				?>
+		
+			</div>
+			<br>
+			<br>
+	<?php } 
+	} 
+	?><!-- si se desea mostrar algun mensaje informativo se hace por aqui  -->
+ 
 
 </body>
 </html>

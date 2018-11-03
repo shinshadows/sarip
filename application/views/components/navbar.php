@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top" style="margin:24px 0;">
-  <a class="navbar-brand" href="<?php echo base_url();?>">Logo</a>
+  <a class="navbar-brand" href="<?php echo base_url();?>"><img src="<?php base_url()?>/assets/img/alien.jpg"style="width:45px;height:45px;"></a>
   <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navb">
     <span class="navbar-toggler-icon"></span>
   </button>
