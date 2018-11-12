@@ -58,7 +58,7 @@ $autoload['packages'] = array();
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array('pagination','form_validation','database','session');
+$autoload['libraries'] = array('pagination','form_validation','database','session','form_validation','bcrypt','auth');
 
 /*
 | -------------------------------------------------------------------
@@ -91,7 +91,7 @@ $autoload['drivers'] = array();
 */
 
 // se coloca los parametros url y form para que lea los formularios helper
-$autoload['helper'] = array('url','form');
+$autoload['helper'] = array('url','form','recaptchalib_helper');
 
 /*
 | -------------------------------------------------------------------

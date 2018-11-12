@@ -1,107 +1,165 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if ( ! ('BASEPATH')) exit('No direct script access allowed'); 
 
-class Login extends CI_Controller {
-
-	function __construct(){
-		parent::__construct();
-		// $this->load->model('m_login'); //instancio el modelo de pais para tenerlo listo para una consulta
-		 
-
-
-
-
-
-
-
-		// $this->load->library('form_validation');//libreria para validar formularios
-		$this->load->library('mybreadcrumb');// instancio la libreria de los Breadcrumbs 
-		
-
-		// $this->load->library(array('session','form_validation'));
-		// $this->load->helper(array('url','form'));
-
-
-		// $this->load->helper('pais/form_helper');
-	}
-
-	public function index(){// controlador principal del a clase
-		
-		$this->load->helper('url');	
-		 
-		 
-		// aqui le paso los enlaces para los breadcrumbs que seran llamados en la vista
-		$this->mybreadcrumb->add('Home', base_url());
-		$this->mybreadcrumb->add('Login', base_url('/login'));
-		$this->mybreadcrumb->add(' ', base_url(' '));
-
-		
-		switch ($this->session->userdata('perfil')) {
-			case '':
-				$data['token'] = $this->token();
-				$data['titulo'] = 'Login con roles de usuario en codeigniter';
-				$data['breadcrumbs'] 	= $this->mybreadcrumb->render();// se pasan el breadcrumbs a la vista como parametros para luego ser mostrados en la plantilla
-				$data['content'] 		= "login/login_view"; //se pasa laa vista para ser mostrada dentro del template
-				$this->load->view("plantilla",$data);//se carga el template principal y dentro de el se pasan parametros como template del modulo y parametros a mostrar			
-				break;
-			case 'administrador':
-				redirect(base_url().'admin');
-				break;
-			case 'editor':
-				redirect(base_url().'editor');
-				break; 
-			case 'suscriptor':
-				redirect(base_url().'suscriptor');
-				break;
-			default: 
-				$data['titulo'] = 'Login con roles de usuario en codeigniter';
-				$data['breadcrumbs'] 	= $this->mybreadcrumb->render();// se pasan el breadcrumbs a la vista como parametros para luego ser mostrados en la plantilla
-				$data['content'] 		= "login/index"; //se pasa laa vista para ser mostrada dentro del template
-				$this->load->view("plantilla",$data);//se carga el template principal y dentro de el se pasan parametros como template del modulo y parametros a mostrar			
-				break; 
-		}
+class Login extends CI_Controller
+{
 	
+	public function __construct()
+	{
+		
+		parent::__construct();
+		
+		//comprobamos si el usuario está logueado
+		if($this->auth->is_logged() == TRUE)
+		{
+			
+			redirect(base_url('home'));
+			
+		}
+			
 	}
-	 
+	
+	//cargamos la vista del login con sus datos
+	public function index()
+	{
+		
+		$data = array('titulo' => 'Creando nuestras propias librerías en codeigniter',
+					  'campos' => $this->auth->campos_formulario(),
+					  'token'  => $this->auth->token()       
+				      );
+					  
+		$this->load->view('login',$data);
+		
+	}
+	
+	//cargamos la vista del registro con sus datos
+	public function registro()
+	{
+		
+		$data = array('titulo' => 'Creando nuestras propias librerías en codeigniter',
+					  'campos' => $this->auth->campos_formulario(),
+					  'token'  => $this->auth->token(),
+					  'key'	   => 'clave pública recaptcha'	              
+				      );
+					  
+		$this->load->view('registro',$data);
 
-	public function new_user() {
-		if($this->input->post('token') && $this->input->post('token') == $this->session->userdata('token')){
-			$this->form_validation->set_rules('username', 'nombre de usuario', 'required|trim|min_length[2]|max_length[150]|xss_clean');
-			$this->form_validation->set_rules('password', 'password', 'required|trim|min_length[5]|max_length[150]|xss_clean');
+	}
 
-			//lanzamos mensajes de error si es que los hay
-
-			if($this->form_validation->run() == FALSE) {
-				$this->index();
-			}else{
-				$username = $this->input->post('username');
-				$password = sha1($this->input->post('password'));
-				$check_user = $this->login_model->login_user($username,$password);
-				if($check_user == TRUE)	{	
-					$data = array(
-					'is_logued_in' => TRUE,
-					'id_usuario' => $check_user->id,
-					'perfil' => $check_user->perfil,
-					'username' => $check_user->username
-					); 
-					$this->session->set_userdata($data);
+	//creamos la lógica para loguear a nuestros usuarios
+	public function user_login()
+	{
+		
+		//si hacen submit al formulario	
+		if($this->input->post('submit'))
+		{			
+			
+			//prevenimos ataques Cross-Site Request Forgery (CSRF)
+			if($this->input->post('token') == $this->session->userdata('token'))
+			{
+				//si la validación del formulario falla
+				//devolvemos al index mostrando los errores
+				if($this->auth->validate() == FALSE)
+				{
+					
 					$this->index();
-				}
+					
+				}else{				
+					
+					$email = $this->input->post('email');
+					$password = $this->input->post('password');
+					
+					//si falla la autentificación creamos una sesión flashdata
+					//para mostrar un mensaje y redirigimos con refresh
+					//al login de nuevo
+					if($this->auth->login_user($email,$password) == FALSE){
+					
+						$this->session->set_flashdata('noexiste','El usuario ingresado no existe');
+						redirect(base_url('login','refresh'));				
+					
+					}else{
+						
+						//si el login es correcto creamos las sesiones
+						//con la función crear_sesiones y redirigimos
+						//a la home
+						$this->auth->crear_sesiones($email,$password);
+						redirect(base_url('home','refresh'));
+						
+					}
+					
+				} 
+			
 			}
 
 		}else{
-				redirect(base_url().'login');
+			
+			redirect(base_url('login'));
+			
 		}
+			
+	}     
+	
+	//función para verificar si el captcha es correcto
+	public function verifica_captcha()
+	{
+            //aquí debemos la clave privada que recaptcha nos ha dado
+		$privatekey = "clave privada recaptcha";
+		$resp = recaptcha_check_answer ($privatekey,
+		                                $_SERVER["REMOTE_ADDR"],
+		                                $this->input->post("recaptcha_challenge_field"),
+		                                $this->input->post("recaptcha_response_field"));
+		
+		  if (!$resp->is_valid) {
+		    //si el captcha introducido es incorrecto se lo decimos
+		    $this->form_validation->set_message('verifica_captcha','El campo es incorrecto');
+				 return FALSE;
+		  } 
 	}
-
-	public function token() {
-		$token = md5(uniqid(rand(),true));
-		$this->session->set_userdata('token',$token);
-		return $token;
-	}
-
-	public function logout_ci() {
-		$this->session->sess_destroy();
-		$this->index();
-	}
-
+	
+	//creamos la lógica para registrar a los usuarios nuevos
+	public function registro_nuevo()
+	{
+		
+		if($this->input->post('submit_registro'))
+		{
+			//prevenimos ataques Cross-Site Request Forgery (CSRF)
+			if($this->input->post('token') == $this->session->userdata('token'))
+			{
+			
+				if($this->auth->validate() == FALSE)
+				{
+					
+					$this->registro();
+					
+				}else{
+					
+					$email = $this->input->post('email');
+					$password = $this->input->post('password');				
+					
+					if($this->auth->register($email,$password) == TRUE){
+					
+						$this->session->set_flashdata('existe','El email ingresado ya existe');
+						redirect(base_url('login/registro','refresh'));				
+					
+					}else{
+						
+						$this->auth->send_mail($email,$password);
+						redirect(base_url('home','refresh'));
+						
+					}
+					
+				} 
+				
+			}
+			
+		}else{
+			
+			redirect(base_url('login/registro'));
+			
+		}
+		
+	}                                      	
+	
 }
+/*
+ * end controllers/login.php
+ */

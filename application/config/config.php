@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 // $config['base_url'] = 'http://igniter3/';
-$config['base_url'] = 'http://codeignier3dpbx'; //se coloca el dominio para las url basicas
+$config['base_url'] = 'http://sarip'; //se coloca el dominio para las url basicas
 
 /*
 |--------------------------------------------------------------------------
@@ -325,7 +325,7 @@ $config['cache_query_string'] = FALSE;
 | https://codeigniter.com/user_guide/libraries/encryption.html
 |
 */
-$config['encryption_key'] = '';
+$config['encryption_key'] = '6LcfEnoUAAAAAGUmZrM24wpHE6L5t0QcsnYLmkFg';
 
 /*
 |--------------------------------------------------------------------------
